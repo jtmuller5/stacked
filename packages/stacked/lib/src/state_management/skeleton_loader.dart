@@ -14,6 +14,8 @@ class SkeletonLoader extends StatefulWidget {
   final Color startColor;
   final Color endColor;
   final Duration duration;
+  final double borderRadius;
+
   const SkeletonLoader({
     Key? key,
     required this.child,
@@ -21,14 +23,14 @@ class SkeletonLoader extends StatefulWidget {
     this.duration = const Duration(seconds: 1),
     this.startColor = _veryLightGrey,
     this.endColor = _lightGrey,
+    this.borderRadius = 16,
   }) : super(key: key);
 
   @override
   _SkeletonLoaderState createState() => _SkeletonLoaderState();
 }
 
-class _SkeletonLoaderState extends State<SkeletonLoader>
-    with TickerProviderStateMixin {
+class _SkeletonLoaderState extends State<SkeletonLoader> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> animationOne;
   late Animation<Color?> animationTwo;
@@ -50,10 +52,8 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
       _initialWidget = widget.child;
     }
 
-    animationOne = ColorTween(begin: widget.startColor, end: widget.endColor)
-        .animate(_controller);
-    animationTwo = ColorTween(begin: widget.endColor, end: widget.startColor)
-        .animate(_controller);
+    animationOne = ColorTween(begin: widget.startColor, end: widget.endColor).animate(_controller);
+    animationTwo = ColorTween(begin: widget.endColor, end: widget.startColor).animate(_controller);
 
     _controller.forward();
 
@@ -106,7 +106,7 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
                   child: ShaderMask(
                     child: CustomPaint(
                       child: widget.child,
-                      foregroundPainter: RectangleFillPainter(),
+                      foregroundPainter: RectangleFillPainter(widget.borderRadius),
                     ),
                     blendMode: BlendMode.srcATop,
                     shaderCallback: (rect) {
@@ -130,13 +130,18 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
 }
 
 class RectangleFillPainter extends CustomPainter {
+  final double borderRadius;
+
   bool hasPainted = true;
+
+  RectangleFillPainter(this.borderRadius);
+
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(0, 0, size.width, size.height),
-          Radius.circular(15.0),
+          Radius.circular(borderRadius),
         ),
         Paint()..color = Colors.grey);
   }
